@@ -166,6 +166,33 @@ function check_product()
         TARGET_BUILD_APPS= \
         get_build_var TARGET_DEVICE > /dev/null
     # hide successful answers, but allow the errors to show
+
+    skip_ocheck="false"
+    if [ "$GITHUB_PAT" = "" ]; then
+        echo -e "\e[1;31mYou forgot to put your GITHUB_PAT variable, setting build type to COMMUNITY. It's needed for checks, please add it. For help, ask to lead dev. Re-run the same command whenever you add it.\e[0m"
+        skip_ocheck="true"
+        export CUSTOM_BUILD_TYPE="COMMUNITY"
+    fi
+    if [ "$skip_ocheck" = "false" ]; then
+        odevices="$(python vendor/aosp/tools/get_official_devices.py | tr '\n' ' ')"
+        omaintainer="$(python vendor/aosp/tools/get_official_maintainer.py "${CUSTOM_BUILD}")"
+        if [ "$(echo "$odevices" | grep -w "$CUSTOM_BUILD")" ]; then
+            lunch_others_targets=()
+            for d in $(python vendor/aosp/tools/get_official_devices.py)
+                do
+                for v in user userdebug eng; do
+                    lunch_others_targets+=("aosp_$d-$v")
+                done
+            done
+
+            echo -e "\e[1;32mYour device is an official device. Setting build type and maintainer name.\e[0m"
+            export CUSTOM_BUILD_TYPE="OFFICIAL"
+            export ASTERA_MAINTAINER="$omaintainer"
+        else
+            [ "$skip_ocheck" = "true" ] && echo -e "\e[1;31mYour device is not an official device. Setting build type to community.\e[0m"
+            export CUSTOM_BUILD_TYPE="COMMUNITY"
+        fi
+    fi
 }
 
 VARIANT_CHOICES=(user userdebug eng)
