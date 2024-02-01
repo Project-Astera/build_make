@@ -174,11 +174,11 @@ function check_product()
         export CUSTOM_BUILD_TYPE="COMMUNITY"
     fi
     if [ "$skip_ocheck" = "false" ]; then
-        odevices="$(python vendor/aosp/tools/get_official_devices.py | tr '\n' ' ')"
-        omaintainer="$(python vendor/aosp/tools/get_official_maintainer.py "${CUSTOM_BUILD}")"
+        odevices="$(python3 vendor/aosp/tools/get_official_devices.py | tr '\n' ' ')"
+        omaintainer="$(python3 vendor/aosp/tools/get_official_maintainer.py "${CUSTOM_BUILD}")"
         if [ "$(echo "$odevices" | grep -w "$CUSTOM_BUILD")" ]; then
             lunch_others_targets=()
-            for d in $(python vendor/aosp/tools/get_official_devices.py)
+            for d in $(python3 vendor/aosp/tools/get_official_devices.py)
                 do
                 for v in user userdebug eng; do
                     lunch_others_targets+=("aosp_$d-$v")
